@@ -15,6 +15,27 @@ const useTraverseTree = () => {
     });
     return { ...tree, items: latestNode };
   }
-  return { insertNode };
+
+  function deleteNode(tree, nodeId) {
+     if (tree.id === nodeId) {
+    return null; 
+  }
+    const filteredItems = tree.items
+      .filter((item) => item.id !== nodeId)
+      .map((item) => deleteNode(item, nodeId));
+    return { ...tree, items: filteredItems };
+  }
+
+  function updateNode(tree, folderId, newName) {
+    if (tree.id === folderId) {
+      return { ...tree, name: newName };
+    }
+    let updatedItems = tree.items.map((item) =>
+      updateNode(item, folderId, newName)
+    );
+    return { ...tree, items: updatedItems };
+  }
+
+  return { insertNode, deleteNode, updateNode };
 };
 export default useTraverseTree;

@@ -1,12 +1,20 @@
 import { useState } from "react";
 
-const Folder = ({ handleInsertNode, explorer }) => {
+const Folder = ({
+  handleInsertNode,
+  handleUpdateNode,
+  handleDeleteNode,
+  explorer,
+}) => {
   // console.log(explorer);
 
   const [expand, setExpand] = useState(false);
 
+  const [editMode, setEditMode] = useState(false);
+  const [editValue, setEditValue] = useState(explorer.name);
+
   const [showInput, setShowInput] = useState({
-    visible: "false",
+    visible: false,
     isFolder: null,
   });
 
@@ -16,8 +24,15 @@ const Folder = ({ handleInsertNode, explorer }) => {
 
     setShowInput({
       visible: true,
-      isFolder
+      isFolder,
     });
+  };
+
+  const onEditSubmit = (e) => {
+    if (e.keyCode === 13 && editValue.trim()) {
+      handleUpdateNode(explorer.id, editValue.trim());
+      setEditMode(false);
+    }
   };
 
   const onAddFolder = (e) => {
@@ -32,7 +47,33 @@ const Folder = ({ handleInsertNode, explorer }) => {
     return (
       <div style={{ marginTop: 5 }}>
         <div className="folder" onClick={() => setExpand(!expand)}>
-          <span>📁{explorer.name}</span>
+          {editMode ? (
+            <input
+              type="text"
+              value={editValue}
+              autoFocus
+              onChange={(e) => setEditValue(e.target.value)}
+              onKeyDown={onEditSubmit}
+              onBlur={() => setEditMode(false)}
+              style={{
+                fontSize: "1rem",
+                padding: "2px 4px",
+
+                borderRadius: "4px",
+                width: "90px",
+                height: "12px",
+              }}
+            />
+          ) : (
+            <span>📁{explorer.name}</span>
+          )}
+
+          <div>
+            <button onClick={() => setEditMode(true)}>✏️</button>
+            <button onClick={() => handleDeleteNode(explorer.id)}>
+              🗑️
+            </button>
+          </div>
           <div>
             <button onClick={(e) => handleNewFolder(e, true)}>Folder+</button>
             <button onClick={(e) => handleNewFolder(e, false)}>File+</button>
@@ -56,6 +97,8 @@ const Folder = ({ handleInsertNode, explorer }) => {
             return (
               <Folder
                 handleInsertNode={handleInsertNode}
+                handleUpdateNode={handleUpdateNode}
+                handleDeleteNode={handleDeleteNode}
                 explorer={exp}
                 key={exp.id}
               />
